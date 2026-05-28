@@ -901,13 +901,15 @@ function endRound(result) {
   } else {
     highlightWin(result.line);
     drawWinLine(result.line);
+
     const name = result.winner === 'X'
       ? document.getElementById('name-x').textContent
       : document.getElementById('name-o').textContent;
+
     setStatusText(name + ' WINS!', 'win', false);
 
     if (result.winner === 'X') scores.X++;
-    else                        scores.O++;
+    else scores.O++;
 
     if (MODE === 'hvc') {
       result.winner === 'X' ? SFX.win() : SFX.lose();
@@ -916,6 +918,17 @@ function endRound(result) {
     }
   }
 
+  updateScoreUI();
+  saveScores();
+
+  // ❌ REMOVE button logic completely
+  document.getElementById('btn-next').style.display = 'none';
+
+  // 🚀 AUTO NEXT ROUND
+  setTimeout(() => {
+    autoNextRound();
+  }, 1200);
+}
   // Update score display immediately
   updateScoreUI();
   saveScores();
@@ -1023,6 +1036,27 @@ function showToast(msg) {
    INIT
 ═══════════════════════════════════════ */
 selectMode('hvh');
+
+  function autoNextRound() {
+  board = Array(9).fill(null);
+  currentPlayer = 'X';
+  gameOver = false;
+  roundActive = true;
+
+  getCells().forEach(c => {
+    c.className = 'cell';
+    c.innerHTML = '';
+  });
+
+  clearWinLine();
+
+  setStatusText('X\'S TURN', 'x-turn', false);
+
+  updateScoreUI();
+
+  if (MODE === 'cvc') scheduleAutoMove();
+  else if (MODE === 'hvc' && currentPlayer === 'O') scheduleAIMove();
+}
 </script>
 </body>
 </html>
